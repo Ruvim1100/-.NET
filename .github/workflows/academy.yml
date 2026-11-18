@@ -1,0 +1,42 @@
+name: Academy
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '11.0.x'
+      - run: npm test
+      - run: pip install playwright html5lib
+      - run: python -m playwright install --with-deps chromium
+      - run: python tests/browser.py
+      - run: python -c "import pathlib,html5lib; [html5lib.HTMLParser(strict=True).parse(p.read_text()) for p in pathlib.Path('site').rglob('*.html')]"
+      - run: dotnet build src/OrderProbe/OrderProbe.csproj -c Release
+      - run: dotnet test tests/OrderProbe.Tests/OrderProbe.Tests.csproj -c Release
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: verify
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.publish.outputs.page_url }}
+    steps:
+      - id: publish
+        uses: actions/deploy-pages@v4
