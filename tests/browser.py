@@ -1,7 +1,7 @@
 """Run with Playwright and Chromium. CHROMIUM_PATH overrides Playwright's browser."""
 import os
 from pathlib import Path
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import expect, sync_playwright
 
 with sync_playwright() as driver:
     browser = driver.chromium.launch(executable_path=os.getenv("CHROMIUM_PATH"), args=["--no-sandbox"])
@@ -26,11 +26,11 @@ with sync_playwright() as driver:
         assert page.locator("#empty").is_visible()
         page.locator("#clear").click()
         page.locator("#modules a[href='#M14']").click()
-        assert page.locator("#module h3").inner_text().startswith("Данные")
+        expect(page.locator("#module h3")).to_have_text("Данные и PostgreSQL")
         page.reload()
         assert page.locator("#modules a[aria-current]").get_attribute("href") == "#M14"
         page.locator("#module .info a").click()
-        assert page.locator("#modules a[aria-current]").get_attribute("href") == "#M13"
+        expect(page.locator("#modules a[aria-current]")).to_have_attribute("href", "#M13")
         page.locator("#category").select_option("Платформа")
         assert page.locator("#modules a").count() < 25
         page.locator("#category").select_option("")

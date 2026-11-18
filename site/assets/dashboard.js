@@ -87,7 +87,10 @@ for (const control of [search, category, availability]) control.addEventListener
 byId('clear').onclick = () => { resetFilters(); render(); search.focus(); };
 window.addEventListener('hashchange', () => {
   render();
-  if (/^#M\d+$/.test(location.hash)) panel.focus();
+  if (/^#M\d+$/.test(location.hash)) {
+    menu.querySelector('[aria-current]')?.scrollIntoView({block:'nearest'});
+    panel.focus();
+  }
 });
 render();
 if (/^#M\d+$/.test(location.hash)) {
