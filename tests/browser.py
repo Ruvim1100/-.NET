@@ -26,13 +26,37 @@ with sync_playwright() as driver:
         assert "успешен" in page.locator("#result").inner_text()
         page.locator("#kit").select_option("ten")
         assert "остановлен" in page.locator("#result").inner_text()
-        for key in ("edit","run"):
-            page.locator("#"+key).click()
-        assert "вывод: v1" in page.locator("#state").inner_text()
-        for key in ("build","run"):
-            page.locator("#"+key).click()
-        assert "вывод: v2" in page.locator("#state").inner_text()
-        page.locator("#reset").click()
+        next_step = page.locator("#next")
+        assert "не создана" in page.locator("#binary").inner_text()
+        for _ in range(3):
+            next_step.click()
+        assert "Кофе" in page.locator("#source").inner_text()
+        next_step.click()
+        assert page.locator("#guess").evaluate("el => el === document.activeElement")
+        for prediction in ("Кофе", "Чай"):
+            page.locator("#guess").select_option(prediction)
+            next_step.click()
+            assert prediction in page.locator("#notice").inner_text()
+            assert page.locator("#console").inner_text() == "Чай"
+            page.locator("#back").click()
+        next_step.click()
+        next_step.click()
+        assert "Кофе" in page.locator("#binary").inner_text()
+        assert page.locator("#console").inner_text() == "Чай"
+        next_step.click()
+        assert page.locator("#console").inner_text() == "Кофе"
+        next_step.click()
+        assert page.locator("#back").is_disabled()
+        assert page.locator("#guess").input_value() == ""
+        page.locator("#free summary").click()
+        page.locator("#draft").fill("Сок")
+        page.locator("#execute").click()
+        assert "Последний вывод: «Чай»" in page.locator("#free-state").inner_text()
+        page.locator("#compile").click()
+        page.locator("#execute").click()
+        assert "Последний вывод: «Сок»" in page.locator("#free-state").inner_text()
+        page.locator("#restart").click()
+        assert page.locator("#draft").input_value() == "Чай"
         page.locator("#answer").select_option("old")
         assert "Верно" in page.locator("#feedback").inner_text()
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")

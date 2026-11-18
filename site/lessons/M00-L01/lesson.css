@@ -1,0 +1,6 @@
+.bench { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: .75rem; margin: 1.5rem 0; }
+.bench > div { display: grid; align-content: start; gap: .6rem; padding: 1rem; background: var(--bg); border: 1px solid var(--line); border-radius: .7rem; }
+.bench code, .bench samp { overflow-wrap: anywhere; }
+#prediction { margin: 1rem 0; }
+#walk button:disabled { opacity: .55; cursor: default; }
+#notice { min-height: 1.6em; }
