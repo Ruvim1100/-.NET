@@ -30,6 +30,19 @@ with sync_playwright() as driver:
                 assert page.locator("main h1").is_visible(), label
                 assert page.locator("html").get_attribute("data-theme") == theme, label
                 assert page.evaluate("document.documentElement.scrollWidth <= innerWidth"), label
+                # A green CI run must also prove that adjacent lesson blocks share one width.
+                if name != "dashboard":
+                    container = page.locator("main").bounding_box()
+                    blocks = page.locator("main > :is(article, section.panel, details)").evaluate_all(
+                        """nodes => nodes.map(node => {
+                            const rect = node.getBoundingClientRect();
+                            return {left: rect.left, width: rect.width};
+                        })"""
+                    )
+                    assert blocks, label
+                    for block in blocks:
+                        assert abs(block["width"] - container["width"]) <= 2, (label, block, container)
+                        assert abs(block["left"] - container["x"]) <= 2, (label, block, container)
                 previous = 0
                 for level in page.locator("main :is(h1,h2,h3,h4,h5,h6)").evaluate_all(
                     "headings => headings.map(h => Number(h.tagName.slice(1)))"
