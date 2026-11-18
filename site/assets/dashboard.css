@@ -1,0 +1,51 @@
+:root { --violet:#573497; --wash:#eeeafe; --nav-bg:#fafafe }
+html[data-theme=dark] { --violet:#d6c7ff; --wash:#31254c; --nav-bg:#131c2d }
+header, main, footer { width:min(1160px,92%) }
+.tools { display:flex; gap:1.2rem; align-items:center; font-size:.9rem }
+.tools a { color:var(--accent); font-weight:650 }
+.banner { overflow:hidden; position:relative; display:grid; grid-template-columns:2fr 1fr; background:linear-gradient(112deg,#211d41,#39316b 70%,#5b4686); color:white; border-radius:22px; isolation:isolate }
+.intro { padding:clamp(1.5rem,4vw,3.4rem); z-index:1 }
+.intro h1 { margin:0; font-size:clamp(2.2rem,5vw,4.25rem); letter-spacing:-.045em }
+.intro p { max-width:45ch; color:#e0def1; margin:.9rem 0 1.35rem }
+.intro .cta { background:#b3f9db; color:#172d27 }
+.jump { color:white }
+.blueprint { position:relative; display:grid; place-items:center; overflow:hidden; background-image:linear-gradient(#ffffff14 1px,transparent 1px),linear-gradient(90deg,#ffffff14 1px,transparent 1px); background-size:26px 26px; mask-image:linear-gradient(90deg,transparent,black 20%) }
+.blueprint span { display:grid; place-items:center; height:8.3rem; width:8.3rem; border-radius:26px; transform:rotate(-9deg); background:#594b85; border:1px solid #bdabe4; box-shadow:8px 8px #413464,9px 9px #9782bb,17px 17px #382f57,18px 18px #8874a8; font:bold 3.8rem/1 monospace; color:#f6f1ff }
+#catalog { margin:2.4rem 0 1rem }
+.filters { display:grid; grid-template-columns:1.5fr 1fr 1fr; align-items:end }
+.filters input,.filters select { width:100%; min-width:0; padding:.65rem .8rem }
+#count { font-size:.9rem; color:var(--dim) }
+.workspace { display:grid; grid-template-columns:minmax(230px, .85fr) minmax(0,2fr); align-items:start; gap:1rem }
+#modules,#module,#empty { border:1px solid var(--line); border-radius:16px; background:var(--card) }
+#modules { background:var(--nav-bg); max-height:38rem; overflow:auto; padding:.6rem; scrollbar-width:thin }
+#modules a { display:flex; gap:.7rem; align-items:baseline; padding:.55rem .6rem; margin:.12rem 0; text-decoration:none; color:var(--ink); border-radius:7px; font-size:.95rem }
+#modules a:hover { background:var(--bg) }
+#modules a[aria-current] { background:var(--wash); color:var(--violet); font-weight:700; box-shadow:inset 3px 0 var(--violet) }
+.mid { font:600 .82rem monospace; color:var(--dim) }
+#module,#empty { padding:clamp(1rem,3vw,2rem) }
+#module h3 { font-size:clamp(1.45rem,3.1vw,2.25rem); margin:.5rem 0 }
+#module h4 { margin:1.2rem 0 .6rem }
+.crumb { color:var(--violet); font:650 .9rem/1.4 monospace }
+.info { color:var(--dim); font-size:.92rem }
+.lesson-list { padding:0; margin:0; list-style:none }
+.lesson-list li { padding:0; border-top:1px solid var(--line) }
+.lesson-row { display:grid; grid-template-columns:1fr auto; align-items:center; gap:.4rem .8rem; padding:.8rem .2rem; line-height:1.4; color:var(--ink); text-decoration:none }
+.lesson-row small { display:block; font: .78rem monospace; margin-bottom:.25rem }
+a.lesson-row { color:var(--accent); font-weight:650 }
+a.lesson-row:hover .lesson-title { text-decoration:underline }
+.status { font-size:.79rem; color:var(--dim) }
+a .status { color:var(--accent) }
+#module:empty,#modules:empty { display:none }
+#empty { text-align:center }
+@media(max-width:720px) {
+  .workspace { grid-template-columns:1fr }
+  #modules { max-height:11rem }
+  .banner { grid-template-columns:1fr }
+  .blueprint { display:none }
+  .filters { grid-template-columns:repeat(2,minmax(0,1fr)); gap:.6rem }
+  .filters label:first-child { grid-column:1/-1 }
+  .filters select { font-size:.88rem }
+  .tools { gap:.5rem }
+  .tools button { font-size:.8rem; padding:.4rem }
+  .brand { font-size:.95rem }
+}

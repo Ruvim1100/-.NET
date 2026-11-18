@@ -10,18 +10,34 @@ with sync_playwright() as driver:
         errors = []
         page.on("pageerror", lambda e: errors.append(str(e)))
         page.goto(Path("site/index.html").resolve().as_uri())
-        assert page.locator("#modules details").count() == 25
+        assert page.locator("#modules a").count() == 25
         page.keyboard.press("Tab")
         assert page.locator(":focus").get_attribute("class") == "skip"
         old = page.locator("html").get_attribute("data-theme")
         page.locator("#theme").click()
         assert page.locator("html").get_attribute("data-theme") != old
         page.locator("#search").fill("LINQ")
-        assert page.locator("#modules details").count() == 1
+        assert page.locator("#modules a").count() == 1
+        assert "LINQ" in page.locator("#module").inner_text()
+        page.locator("#search").fill("M00-L02")
+        assert page.locator(".lesson-row").count() == 1
+        assert page.locator("a.lesson-row").count() == 0
+        page.locator("#search").fill("zzzzzz")
+        assert page.locator("#empty").is_visible()
+        page.locator("#clear").click()
+        page.locator("#modules a[href='#M14']").click()
+        assert page.locator("#module h3").inner_text().startswith("Данные")
+        page.reload()
+        assert page.locator("#modules a[aria-current]").get_attribute("href") == "#M14"
+        page.locator("#module .info a").click()
+        assert page.locator("#modules a[aria-current]").get_attribute("href") == "#M13"
+        page.locator("#category").select_option("Платформа")
+        assert page.locator("#modules a").count() < 25
+        page.locator("#category").select_option("")
         page.locator("#search").fill("")
         page.locator("#available").select_option("open")
-        assert page.locator("#modules details").count() >= 1
-        page.locator(".cta").click()
+        assert page.locator("#modules a").count() >= 1
+        page.locator("a.lesson-row").first.click()
         page.locator("#op").select_option("run")
         assert "успешен" in page.locator("#result").inner_text()
         page.locator("#kit").select_option("ten")

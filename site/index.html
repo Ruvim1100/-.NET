@@ -1,2 +1,25 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Карта обучения · .NET Academy</title><link rel="stylesheet" href="assets/academy.css"><script defer src="assets/theme.js"></script><script defer src="data/catalog.js"></script><script defer src="assets/dashboard.js"></script></head><body><a class="skip" href="#main">К содержанию</a><header><a href="index.html" class="brand">C# <span>/</span> .NET Academy</a><button type="button" id="theme">Сменить тему</button></header><main id="main"><div class="hero"><div class="eyebrow">ENGINEERING ACADEMY</div><h1>C# и .NET<br>от CLI до production</h1><p class="lead">Соберите сервис заказов по шагам. Начните с проверки среды, затем пройдите путь от системы типов до защиты архитектуры.</p><div class="actions"><a class="cta" href="lessons/M00-L01/index.html">Начать диагностику →</a><a href="https://docs.google.com/spreadsheets/d/18v_Rhc5ymrf2IoMg4E77suxVbFPU7DUBtzFLTiOjgRQ/edit">Мой Progress Tracker ↗</a></div></div><h2 id="map">Карта обучения</h2><div class="filters"><label>Поиск по теме<input id="search" type="search" placeholder="Например, LINQ"></label><label>Направление<select id="category"><option value="">Все направления</option></select></label><label>Доступность<select id="available"><option value="">Все модули</option><option value="open">С опубликованным уроком</option></select></label></div><p id="count" class="meta" role="status"></p><div id="modules"></div></main><footer>C# &amp; .NET Engineering Academy</footer></body></html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Карта обучения · .NET Academy</title>
+  <link rel="stylesheet" href="assets/academy.css"><link rel="stylesheet" href="assets/dashboard.css">
+  <script defer src="assets/theme.js"></script><script defer src="data/catalog.js"></script><script defer src="assets/dashboard.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">К содержанию</a>
+<header><a href="index.html" class="brand">C# <span>/</span> .NET Academy</a><div class="tools"><a href="https://docs.google.com/spreadsheets/d/18v_Rhc5ymrf2IoMg4E77suxVbFPU7DUBtzFLTiOjgRQ/edit">Мой трекер ↗</a><button type="button" id="theme">Сменить тему</button></div></header>
+<main id="main">
+  <div class="banner"><div class="intro"><h1>Карта обучения</h1><p>Сервис заказов на C# и .NET: от первой сборки до эксплуатации в production.</p><div class="actions"><a class="cta" id="start" hidden>Открыть первый урок →</a><a class="jump" href="#catalog">К модулям ↓</a></div></div><div class="blueprint" aria-hidden="true"><span>C#</span></div></div>
+  <h2 id="catalog">Модули и уроки</h2>
+  <form class="filters" role="search" id="filters">
+    <label>Поиск<input id="search" type="search" placeholder="Тема, модуль или ID урока"></label>
+    <label>Направление<select id="category"><option value="">Все направления</option></select></label>
+    <label>Уроки<select id="available"><option value="">Все уроки</option><option value="open">Только опубликованные</option></select></label>
+  </form>
+  <p id="count" role="status"></p>
+  <div class="workspace"><nav aria-label="Выбор модуля" id="modules"></nav><section id="module" tabindex="-1" aria-label="Выбранный модуль"></section></div>
+  <div id="empty" hidden><p>По этим условиям ничего не найдено.</p><button type="button" id="clear">Сбросить поиск и фильтры</button></div>
+</main>
+<footer>C# &amp; .NET Engineering Academy</footer>
+</body></html>
