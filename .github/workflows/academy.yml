@@ -20,6 +20,16 @@ jobs:
       - run: npm test
       - run: pip install playwright html5lib
       - run: python -m playwright install --with-deps chromium
+      - name: Check every published page in both themes
+        run: python tests/layout.py
+      - name: Save screenshots for visual review
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: page-previews
+          path: page-previews/
+          if-no-files-found: warn
+          retention-days: 7
       - run: python tests/browser.py
       - run: python -c "import pathlib,html5lib; [html5lib.HTMLParser(strict=True).parse(p.read_text()) for p in pathlib.Path('site').rglob('*.html')]"
       - run: dotnet build src/OrderProbe/OrderProbe.csproj -c Release
