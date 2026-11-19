@@ -1,0 +1,14 @@
+{
+  "id": "M00-L02",
+  "title": "От исходника до запуска",
+  "checked": "2026-11-19",
+  "version": "2026-11-19.1",
+  "minutes": 45,
+  "framework": "net11.0",
+  "sources": [
+    "https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build",
+    "https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-run",
+    "https://learn.microsoft.com/en-us/dotnet/standard/managed-execution-process",
+    "https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-publish"
+  ]
+}
