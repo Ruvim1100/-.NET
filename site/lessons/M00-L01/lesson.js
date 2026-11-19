@@ -11,10 +11,6 @@ function simulate() {
 }
 for (const id of ['kit','op']) byId(id).addEventListener('change',simulate);
 simulate();
-byId('answer').onchange = event => {
- const feedback = {old:'Верно. Флаг пропускает сборку, поэтому запускается прежний артефакт.',new:'Проверьте в пошаговом опыте, когда меняется версия DLL.',error:'Сборка уже существует. Какой этап пропускает флаг?', '':'Сначала сделайте прогноз.'};
- byId('feedback').textContent = feedback[event.target.value];
-};
 
 // Each row records what is observable immediately after one action.
 const steps = [
@@ -65,3 +61,135 @@ byId('compile').onclick = () => { compiled = draft.value; showBench(); };
 byId('execute').onclick = () => { printed = compiled; showBench(); };
 byId('restart').onclick = () => { draft.value = compiled = 'Чай'; printed = null; showBench(); };
 showBench();
+
+// The report is a private local draft; nothing is sent to a server.
+const reportForm = byId('assessment-form');
+const reportBlocks = [...reportForm.querySelectorAll('[data-assessment-id]')];
+const reportFields = [...reportForm.querySelectorAll('[data-assessment-id] input, [data-assessment-id] textarea, [data-assessment-id] select')];
+const reportVersion = '2026-11-19.1';
+const reportStorageKey = 'dotnet-academy:M00-L01:answers:' + reportVersion;
+const reportResult = byId('report-result');
+const reportPreview = byId('report-preview');
+const reportStatus = byId('report-status');
+
+function getGroupAnswers(block) {
+  const fields = [...block.querySelectorAll('input, textarea, select')];
+  const visitedNames = new Set();
+  const results = [];
+  for (const field of fields) {
+    if (visitedNames.has(field.name)) continue;
+    visitedNames.add(field.name);
+    const sameName = fields.filter(item => item.name === field.name);
+    const label = field.dataset.answerLabel || 'Ответ';
+    let answer = 'Не отвечено';
+    if (field.type === 'radio' || field.type === 'checkbox') {
+      const selected = sameName.filter(item => item.checked);
+      if (selected.length) {
+        answer = selected.map(item => item.closest('label').textContent.replace(/\s+/g, ' ').trim()).join('; ');
+      }
+    } else if (field.value.trim()) {
+      // Preserve the original line breaks and spacing in code and terminal logs.
+      answer = field.value;
+    }
+    results.push({label, answer, answered: answer !== 'Не отвечено'});
+  }
+  return results;
+}
+
+function updateReportProgress() {
+  const required = reportBlocks.filter(block => block.dataset.optional !== 'true');
+  const completed = required.filter(block => getGroupAnswers(block).every(item => item.answered)).length;
+  byId('assessment-progress').max = required.length;
+  byId('assessment-progress').value = completed;
+  byId('assessment-count').textContent = completed + ' из ' + required.length + ' разделов заполнено';
+}
+
+function makeReviewReport() {
+  const content = [
+    'C# & .NET Engineering Academy — отчёт ученика',
+    'Урок: M00-L01 — SDK и Runtime: как проверить среду',
+    'Версия урока: ' + reportVersion,
+    'Сформировано: ' + new Date().toLocaleString('ru-RU') + ' (местное время устройства)',
+    'Тип работы: диагностика M00, без проходного балла',
+    '',
+    '=== Проверка понимания ==='
+  ];
+  for (const block of reportBlocks) {
+    if (block.dataset.assessmentId === 'P01') content.push('', '=== Самостоятельная практика ===');
+    const heading = block.querySelector('[data-report-title]').textContent.replace(/\s+/g, ' ').trim();
+    content.push('', heading);
+    for (const item of getGroupAnswers(block)) {
+      content.push(item.label + ': ' + item.answer);
+    }
+  }
+  content.push('', '=== Конец отчёта ===');
+  return content.join('\n');
+}
+
+function saveReviewDraft() {
+  try {
+    const snapshot = {};
+    for (const field of reportFields) {
+      snapshot[field.id] = field.type === 'checkbox' || field.type === 'radio' ? field.checked : field.value;
+    }
+    localStorage.setItem(reportStorageKey, JSON.stringify(snapshot));
+  } catch {
+    reportStatus.textContent = 'Локальный черновик не удалось сохранить. Скопируй отчёт до закрытия страницы.';
+  }
+}
+
+function restoreReviewDraft() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(reportStorageKey) || 'null');
+    if (!saved || typeof saved !== 'object' || Array.isArray(saved)) return;
+    for (const field of reportFields) {
+      if (!Object.prototype.hasOwnProperty.call(saved, field.id)) continue;
+      if (field.type === 'radio' || field.type === 'checkbox') {
+        field.checked = saved[field.id] === true;
+      } else if (typeof saved[field.id] === 'string') {
+        field.value = saved[field.id];
+      }
+    }
+  } catch {
+    reportStatus.textContent = 'Сохранённый черновик недоступен. Можно заполнить форму заново.';
+  }
+}
+
+function onAssessmentInput() {
+  updateReportProgress();
+  saveReviewDraft();
+  if (!reportResult.hidden) {
+    reportPreview.value = makeReviewReport();
+    reportStatus.textContent = 'Ответы изменены. Отчёт обновлён — нажми «Собрать и скопировать», чтобы скопировать новую версию.';
+  }
+}
+reportForm.addEventListener('input', onAssessmentInput);
+reportForm.addEventListener('change', onAssessmentInput);
+
+byId('report-copy').addEventListener('click', async () => {
+  const report = makeReviewReport();
+  reportPreview.value = report;
+  reportResult.hidden = false;
+  try {
+    if (!navigator.clipboard?.writeText) throw new Error('Clipboard API недоступен');
+    await navigator.clipboard.writeText(report);
+    reportStatus.textContent = 'Отчёт скопирован! Теперь вставь его в чат для Code Review.';
+  } catch {
+    reportPreview.focus();
+    reportPreview.select();
+    reportStatus.textContent = 'Автокопирование недоступно. Текст отчёта выделен ниже: нажми Ctrl+C (или «Копировать» на телефоне).';
+  }
+});
+
+byId('report-reset').addEventListener('click', () => {
+  if (!window.confirm('Удалить все ответы и локальный черновик этого урока?')) return;
+  reportForm.reset();
+  try { localStorage.removeItem(reportStorageKey); } catch { /* Storage may be disabled. */ }
+  reportResult.hidden = true;
+  reportPreview.value = '';
+  updateReportProgress();
+  reportStatus.textContent = 'Ответы сброшены. Можно пройти диагностику снова.';
+});
+
+restoreReviewDraft();
+updateReportProgress();
