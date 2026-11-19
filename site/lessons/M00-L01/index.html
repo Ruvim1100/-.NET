@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>M00-L01 · SDK и Runtime · .NET Academy</title><link rel="stylesheet" href="../../assets/academy.css?v=930a433b-layout"><script defer src="../../assets/theme.js"></script><link rel="stylesheet" href="lesson.css?v=assessment-1"><script defer src="lesson.js?v=assessment-1"></script></head><body><a class="skip" href="#main">К содержанию</a><header><a href="../../index.html" class="brand">C# <span>/</span> .NET Academy</a><button type="button" id="theme">Сменить тему</button></header><main id="main"><nav><a href="../../index.html#M00">← Карта модуля M00</a><a href="#lab">К практике</a></nav><div class="hero">
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>M00-L01 · SDK и Runtime · .NET Academy</title><link rel="stylesheet" href="../../assets/academy.css?v=930a433b-layout"><script defer src="../../assets/theme.js"></script><link rel="stylesheet" href="lesson.css?v=assessment-layout-2"><script defer src="lesson.js?v=assessment-1"></script></head><body><a class="skip" href="#main">К содержанию</a><header><a href="../../index.html" class="brand">C# <span>/</span> .NET Academy</a><button type="button" id="theme">Сменить тему</button></header><main id="main"><nav><a href="../../index.html#M00">← Карта модуля M00</a><a href="#lab">К практике</a></nav><div class="hero">
   <p class="eyebrow">M00-L01 / ДИАГНОСТИКА / 35 МИН</p>
   <h1>Почему программа печатает старый текст?</h1>
   <p class="lead">Вы изменили одну строку в файле и сохранили её. Чтобы понять, что появится на экране, проследим путь этой строки от редактора до запуска. Для первого опыта достаточно браузера.</p>
@@ -62,56 +62,56 @@ dotnet run</code></pre></li>
   <form id="assessment-form" novalidate>
     <h3 class="assessment-group-title"><span>01</span> Проверка понимания</h3>
     <div class="assessment-grid">
-      <fieldset class="assessment-question" data-assessment-id="Q01">
-        <legend data-report-title>Q01. Ты изменил Program.cs после сборки. Что покажет dotnet run --no-build?</legend>
+      <section class="assessment-question" data-assessment-id="Q01" role="radiogroup" aria-labelledby="Q01-title">
+        <h4 id="Q01-title" data-report-title>Q01. Ты изменил Program.cs после сборки. Что покажет dotnet run --no-build?</h4>
         <p class="assessment-hint">Выбери один вариант.</p>
         <label class="assessment-option"><input type="radio" name="q01" id="q01-a" value="A" data-answer-label="Ответ"> <span><b>A</b> Новый текст из Program.cs</span></label>
         <label class="assessment-option"><input type="radio" name="q01" id="q01-b" value="B" data-answer-label="Ответ"> <span><b>B</b> Текст предыдущей сборки</span></label>
         <label class="assessment-option"><input type="radio" name="q01" id="q01-c" value="C" data-answer-label="Ответ"> <span><b>C</b> Обязательно возникнет ошибка</span></label>
-      </fieldset>
-      <fieldset class="assessment-question" data-assessment-id="Q02">
-        <legend data-report-title>Q02. Какие команды перечисляют установленные SDK и Runtime? Выбери все подходящие.</legend>
+      </section>
+      <section class="assessment-question" data-assessment-id="Q02" role="group" aria-labelledby="Q02-title">
+        <h4 id="Q02-title" data-report-title>Q02. Какие команды перечисляют установленные SDK и Runtime? Выбери все подходящие.</h4>
         <p class="assessment-hint">Вариантов может быть несколько.</p>
         <label class="assessment-option"><input type="checkbox" name="q02" id="q02-a" value="A" data-answer-label="Выбрано"> <span><b>A</b> dotnet --version</span></label>
         <label class="assessment-option"><input type="checkbox" name="q02" id="q02-b" value="B" data-answer-label="Выбрано"> <span><b>B</b> dotnet --list-sdks</span></label>
         <label class="assessment-option"><input type="checkbox" name="q02" id="q02-c" value="C" data-answer-label="Выбрано"> <span><b>C</b> dotnet --list-runtimes</span></label>
         <label class="assessment-option"><input type="checkbox" name="q02" id="q02-d" value="D" data-answer-label="Выбрано"> <span><b>D</b> dotnet run</span></label>
-      </fieldset>
-      <fieldset class="assessment-question" data-assessment-id="Q03">
-        <legend data-report-title>Q03. Почему после изменения исходника старая DLL продолжает печатать прежний текст? Как получить новый результат?</legend>
+      </section>
+      <section class="assessment-question" data-assessment-id="Q03" role="group" aria-labelledby="Q03-title">
+        <h4 id="Q03-title" data-report-title>Q03. Почему после изменения исходника старая DLL продолжает печатать прежний текст? Как получить новый результат?</h4>
         <label class="assessment-field" for="q03">Объяснение своими словами
           <textarea id="q03" name="q03" rows="4" data-answer-label="Объяснение" placeholder="Исходный файл изменился, но…"></textarea>
         </label>
-      </fieldset>
-      <fieldset class="assessment-question" data-assessment-id="Q04">
-        <legend data-report-title>Q04. Как проверить, какие инструменты сборки доступны на машине коллеги? Чего этот вывод ещё не доказывает?</legend>
+      </section>
+      <section class="assessment-question" data-assessment-id="Q04" role="group" aria-labelledby="Q04-title">
+        <h4 id="Q04-title" data-report-title>Q04. Как проверить, какие инструменты сборки доступны на машине коллеги? Чего этот вывод ещё не доказывает?</h4>
         <label class="assessment-field" for="q04">Команда и ограничения проверки
           <textarea id="q04" name="q04" rows="4" data-answer-label="Ответ" placeholder="Я попросил бы выполнить…"></textarea>
         </label>
-      </fieldset>
+      </section>
     </div>
 
     <h3 class="assessment-group-title"><span>02</span> Результаты самостоятельной практики</h3>
     <p class="assessment-lead">Вставляй реальный вывод команд. Если .NET 11 пока не установлен, честно выбери соответствующий вариант — незавершённый отчёт тоже можно отправить на диагностику.</p>
     <div class="assessment-grid">
-      <fieldset class="assessment-question" data-assessment-id="P01">
-        <legend data-report-title>P01. До какого этапа удалось дойти в реальном терминале?</legend>
+      <section class="assessment-question" data-assessment-id="P01" role="radiogroup" aria-labelledby="P01-title">
+        <h4 id="P01-title" data-report-title>P01. До какого этапа удалось дойти в реальном терминале?</h4>
         <label class="assessment-option"><input type="radio" name="p01" id="p01-a" value="A" data-answer-label="Этап"> <span><b>A</b> SDK 11 есть, команды выполнены</span></label>
         <label class="assessment-option"><input type="radio" name="p01" id="p01-b" value="B" data-answer-label="Этап"> <span><b>B</b> SDK 11 не установлен</span></label>
         <label class="assessment-option"><input type="radio" name="p01" id="p01-c" value="C" data-answer-label="Этап"> <span><b>C</b> Команды не запускаются</span></label>
         <label class="assessment-option"><input type="radio" name="p01" id="p01-d" value="D" data-answer-label="Этап"> <span><b>D</b> Пока пройден только симулятор в браузере</span></label>
-      </fieldset>
-      <fieldset class="assessment-question" data-assessment-id="P02">
-        <legend data-report-title>P02. Что показали dotnet --version, dotnet --list-sdks и dotnet --list-runtimes? Можно ли собрать net11.0?</legend>
+      </section>
+      <section class="assessment-question" data-assessment-id="P02" role="group" aria-labelledby="P02-title">
+        <h4 id="P02-title" data-report-title>P02. Что показали dotnet --version, dotnet --list-sdks и dotnet --list-runtimes? Можно ли собрать net11.0?</h4>
         <label class="assessment-field" for="env-output">Вывод команд
           <textarea id="env-output" name="env-output" rows="5" spellcheck="false" data-answer-label="Фактический вывод трёх команд" placeholder="dotnet --version&#10;11.0.100&#10;dotnet --list-sdks&#10;…"></textarea>
         </label>
         <label class="assessment-field" for="env-predict">Мой прогноз и причина
           <textarea id="env-predict" name="env-predict" rows="2" data-answer-label="Прогноз о сборке net11.0" placeholder="Собрать получится / не получится, потому что…"></textarea>
         </label>
-      </fieldset>
-      <fieldset class="assessment-question assessment-wide" data-assessment-id="P03">
-        <legend data-report-title>P03. Какие два слова ты использовал в Program.cs? Приведи код после изменения.</legend>
+      </section>
+      <section class="assessment-question assessment-wide" data-assessment-id="P03" role="group" aria-labelledby="P03-title">
+        <h4 id="P03-title" data-report-title>P03. Какие два слова ты использовал в Program.cs? Приведи код после изменения.</h4>
         <div class="assessment-pair">
           <label class="assessment-field" for="word-first">Первое слово
             <input id="word-first" name="word-first" data-answer-label="Первое слово" placeholder="Например, Чай">
@@ -123,9 +123,9 @@ dotnet run</code></pre></li>
         <label class="assessment-field" for="program-code">Мой Program.cs после изменения
           <textarea id="program-code" class="assessment-code" name="program-code" rows="3" spellcheck="false" data-answer-label="Код Program.cs" placeholder="Console.WriteLine(&quot;Кофе&quot;);"></textarea>
         </label>
-      </fieldset>
-      <fieldset class="assessment-question assessment-wide" data-assessment-id="P04">
-        <legend data-report-title>P04. Сравни прогноз с реальным результатом каждого запуска.</legend>
+      </section>
+      <section class="assessment-question assessment-wide" data-assessment-id="P04" role="group" aria-labelledby="P04-title">
+        <h4 id="P04-title" data-report-title>P04. Сравни прогноз с реальным результатом каждого запуска.</h4>
         <div class="run-steps">
           <div class="run-step"><strong><span>1</span> dotnet run --no-build <small>сразу после первой сборки</small></strong>
             <div class="assessment-pair">
@@ -143,19 +143,19 @@ dotnet run</code></pre></li>
               <label class="assessment-field" for="run3-actual">Фактический вывод<input id="run3-actual" name="run3-actual" data-answer-label="Шаг 3 — фактический вывод" placeholder="Что напечатало?"></label>
             </div></div>
         </div>
-      </fieldset>
-      <fieldset class="assessment-question assessment-wide" data-assessment-id="P05">
-        <legend data-report-title>P05. В какой момент обновилась DLL? Чем отличаются SDK и Runtime в этом опыте?</legend>
+      </section>
+      <section class="assessment-question assessment-wide" data-assessment-id="P05" role="group" aria-labelledby="P05-title">
+        <h4 id="P05-title" data-report-title>P05. В какой момент обновилась DLL? Чем отличаются SDK и Runtime в этом опыте?</h4>
         <label class="assessment-field" for="lab-why">Моё объяснение
           <textarea id="lab-why" name="lab-why" rows="4" data-answer-label="Объяснение результата" placeholder="DLL обновилась, когда…"></textarea>
         </label>
-      </fieldset>
-      <fieldset class="assessment-question assessment-wide assessment-optional" data-assessment-id="P06" data-optional="true">
-        <legend data-report-title>P06. Что не получилось, какие ошибки возникли и какие вопросы остались? (необязательно)</legend>
+      </section>
+      <section class="assessment-question assessment-wide assessment-optional" data-assessment-id="P06" data-optional="true" role="group" aria-labelledby="P06-title">
+        <h4 id="P06-title" data-report-title>P06. Что не получилось, какие ошибки возникли и какие вопросы остались? (необязательно)</h4>
         <label class="assessment-field" for="lab-errors">Ошибки, команды, логи и вопросы
           <textarea id="lab-errors" name="lab-errors" rows="4" spellcheck="false" data-answer-label="Ошибки и вопросы" placeholder="Если всё прошло успешно, можно оставить пустым."></textarea>
         </label>
-      </fieldset>
+      </section>
     </div>
 
     <div class="assessment-export">
