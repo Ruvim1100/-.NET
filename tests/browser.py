@@ -19,9 +19,11 @@ with sync_playwright() as driver:
         page.locator("#search").fill("LINQ")
         assert page.locator("#modules a").count() == 1
         assert "LINQ" in page.locator("#module").inner_text()
-        page.locator("#search").fill("M00-L02")
+        page.locator("#search").fill("M00-L03")
         assert page.locator(".lesson-row").count() == 1
         assert page.locator("a.lesson-row").count() == 0
+        page.locator("#search").fill("M00-L02")
+        assert page.locator("a.lesson-row").count() == 1
         page.locator("#search").fill("zzzzzz")
         assert page.locator("#empty").is_visible()
         page.locator("#clear").click()
