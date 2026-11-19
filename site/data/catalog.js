@@ -771,6 +771,7 @@ window.academy = {
     }
   ],
   "published": {
-    "M00-L01": "lessons/M00-L01/index.html"
+    "M00-L01": "lessons/M00-L01/index.html",
+    "M00-L02": "lessons/M00-L02/index.html"
   }
 };
