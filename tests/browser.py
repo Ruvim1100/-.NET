@@ -75,6 +75,10 @@ with sync_playwright() as driver:
         assert page.locator("#draft").input_value() == "Чай"
         # Assessment: single choice, multiple choice, long text, command logs and code.
         assert page.locator("[data-assessment-id]").count() == 10
+        assert page.locator("#assessment legend").count() == 0
+        assert page.locator(".assessment-question > h4[data-report-title]").count() == 10
+        assert page.get_by_role("radiogroup", name="Q01. Ты изменил Program.cs после сборки. Что покажет dotnet run --no-build?").count() == 1
+        assert page.get_by_role("radiogroup", name="P01. До какого этапа удалось дойти в реальном терминале?").count() == 1
         page.locator("#q01-b").check()
         page.locator("#q02-b").check()
         page.locator("#q02-c").check()
