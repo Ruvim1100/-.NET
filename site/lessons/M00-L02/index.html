@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Интерактивный урок M00-L02: от исходного кода C# через IL и JIT к выводу программы.">
+  <title>M00-L02 · От исходника до запуска · C# &amp; .NET Academy</title>
+  <link rel="stylesheet" href="../../assets/academy.css?v=930a433b-layout">
+  <link rel="stylesheet" href="lesson.css?v=1">
+  <script defer src="../../assets/theme.js"></script>
+  <script defer src="lesson.js?v=1"></script>
+</head>
+<body>
+<a class="skip" href="#main">К содержанию</a>
+<header><a class="brand" href="../../index.html">C# <span>/</span> .NET Academy</a><button id="theme" type="button">Сменить тему</button></header>
+<main id="main">
+<nav class="lesson-nav" aria-label="Навигация урока">
+  <a href="../../index.html#M00">← Модуль M00</a><a href="#journey">Пошаговый опыт</a><a href="#lab">Лабораторная</a><a href="#assessment">Сдать работу</a>
+</nav>
+<div class="hero lesson-hero">
+  <p class="eyebrow">M00-L02 / ПЛАТФОРМА / 45 МИН / .NET 11</p>
+  <h1>Как исходный код C# становится работающей программой?</h1>
+  <p class="lead">В прошлом уроке ты увидел, что исходник и DLL — разные вещи. Теперь разберём, <strong>что происходит между ними</strong> и кто превращает инструкции в действия процессора.</p>
+  <div class="hero-steps"><span>01 · Прогноз</span><span>02 · Сборка</span><span>03 · Загрузка</span><span>04 · Выполнение</span></div>
+  <a class="cta lesson-start" href="#journey">Начать интерактивный опыт</a>
+</div>
+<article class="intro-note">
+  <p class="eyebrow">ЗАДАЧА РАЗРАБОТЧИКА</p>
+  <h2>Сотрудник видит DLL, но не понимает, как она запускается</h2>
+  <p>Представь, что в сервисе заказов нужно разобраться: программа уже собрана, а в папке лежат <code>TraceFlow.dll</code> и два файла JSON. Что из этого исходный код? Где машинные инструкции? Кому нужен Runtime? На эти вопросы мы ответим без прыжка сразу к CLR, JIT и другим сокращениям.</p>
+  <p class="note-caption">Предпосылка: M00-L01 — успешная сборка консольного приложения и различие SDK/Runtime. Для первых двух экспериментов достаточно браузера.</p>
+</article>
+<section class="panel" id="journey">
+  <p class="eyebrow">ИНТЕРАКТИВ 01 · ПОШАГОВАЯ МОДЕЛЬ</p>
+  <h2>Проследи путь одной строки</h2>
+  <p>У каждой стадии своё состояние. Нажимай «Далее», предварительно делая прогноз. Это упрощённая модель обычной framework-dependent сборки с JIT: детали могут отличаться в ReadyToRun и Native AOT.</p>
+  <div class="journey-line" aria-label="Этапы выполнения">
+    <span class="stage-tile" data-stage="source">1. Исходник</span>
+    <span class="stage-tile" data-stage="build">2. Сборка</span>
+    <span class="stage-tile" data-stage="load">3. Runtime</span>
+    <span class="stage-tile" data-stage="execute">4. Результат</span>
+  </div>
+  <div class="stage-grid">
+    <div class="stage-box"><small>Program.cs · сохранённый C#</small><code id="stage-source">Console.WriteLine("Чай");</code></div>
+    <div class="stage-box"><small>TraceFlow.dll · IL и метаданные</small><span id="stage-assembly">Ещё не создана</span></div>
+    <div class="stage-box"><small>Runtime / JIT</small><span id="stage-runtime">Не запущен</span></div>
+    <div class="stage-box"><small>Консоль</small><samp id="stage-console">Пусто</samp></div>
+  </div>
+  <div class="step-description"><p class="eyebrow" id="stage-counter">Шаг 1 из 9</p><h3 id="stage-heading">Сначала есть исходник</h3><p id="stage-explanation">В файле лежит текст.</p></div>
+  <div id="stage-prediction" class="prediction" hidden>
+    <label for="stage-guess">Прогноз: какой текст покажет прямой запуск прежней DLL после изменения Program.cs?</label>
+    <select id="stage-guess"><option value="">Сделай прогноз</option><option value="Чай">Чай</option><option value="Кофе">Кофе</option></select>
+  </div>
+  <div class="actions journey-actions">
+    <button id="stage-prev" type="button">← Назад</button>
+    <button id="stage-next" class="cta" type="button">Далее →</button>
+    <button id="stage-reset" type="button">С начала</button>
+  </div>
+  <p id="stage-feedback" class="feedback" role="status" aria-live="polite"></p>
+</section>
+<article>
+  <h2>Четыре понятия — один процесс</h2>
+  <div class="concept-grid">
+    <div><strong>Компилятор C#</strong><p>Читает C# и создаёт <em>IL</em> (Intermediate Language — промежуточный язык) и метаданные о типах и методах.</p></div>
+    <div><strong>Assembly · сборка</strong><p>DLL содержит IL и метаданные. Это не текст Program.cs и, в типичном случае, ещё не готовые инструкции процессора.</p></div>
+    <div><strong>CLR · Runtime</strong><p>Среда исполнения загружает сборку, разрешает зависимости, управляет выполнением и памятью.</p></div>
+    <div><strong>JIT · Just-in-Time</strong><p>В типичном сценарии превращает нужные методы IL в машинный код во время исполнения. Не путай его с компилятором C#.</p></div>
+  </div>
+</article>
+<section class="panel" id="artifact">
+  <p class="eyebrow">ИНТЕРАКТИВ 02 · ПРОВОДНИК СБОРКИ</p>
+  <h2>Что лежит рядом с DLL?</h2>
+  <p>Выбери файл и посмотри его роль. Здесь показаны <strong>описания</strong>, а не настоящие байты бинарных файлов. Реальные файлы увидим в лабораторной.</p>
+  <div class="artifact-layout">
+    <div class="artifact-files" role="group" aria-label="Выбор артефакта">
+      <button class="artifact-choice" data-file="cs" type="button">Program.cs <span>Исходник</span></button>
+      <button class="artifact-choice" data-file="dll" type="button">TraceFlow.dll <span>Сборка</span></button>
+      <button class="artifact-choice" data-file="runtimeconfig" type="button">TraceFlow.runtimeconfig.json <span>Среда</span></button>
+      <button class="artifact-choice" data-file="deps" type="button">TraceFlow.deps.json <span>Зависимости</span></button>
+      <button class="artifact-choice" data-file="pdb" type="button">TraceFlow.pdb <span>Отладка</span></button>
+    </div>
+    <div class="artifact-detail">
+      <p class="eyebrow" id="artifact-kind"></p><h3 id="artifact-name"></h3>
+      <pre id="artifact-display" aria-label="Содержимое или описание файла"></pre>
+      <p id="artifact-explain"></p>
+    </div>
+  </div>
+</section>
+<section class="panel" id="experiment">
+  <p class="eyebrow">ИНТЕРАКТИВ 03 · САМОСТОЯТЕЛЬНЫЙ ЭКСПЕРИМЕНТ</p>
+  <h2>А если поменять исходник, но не пересобрать?</h2>
+  <p>Эксперимент изменяет только одно условие за раз. Изначальная DLL печатает «Чай». Выбери текст файла, действие и прогноз; затем сравни его с модельным результатом.</p>
+  <div class="experiment-controls">
+    <label for="experiment-source">Сохранённый текст в Program.cs
+      <select id="experiment-source"><option value="Чай">Чай</option><option value="Кофе">Кофе</option></select></label>
+    <label for="experiment-command">Действие
+      <select id="experiment-command"><option value="build">dotnet build</option><option value="direct">dotnet TraceFlow.dll</option><option value="run">dotnet run</option></select></label>
+    <label for="experiment-guess">Что появится в консоли?
+      <select id="experiment-guess"><option value="">Сделать прогноз…</option><option value="none">Ничего: только сборка</option><option value="Чай">Чай</option><option value="Кофе">Кофе</option></select></label>
+  </div>
+  <div class="actions"><button id="experiment-execute" type="button" class="cta">Выполнить действие</button><button id="experiment-reset" type="button">Сбросить эксперимент</button></div>
+  <div class="experiment-observation"><div><small>Исходник</small><strong id="experiment-draft">Чай</strong></div><div><small>Содержимое DLL</small><strong id="experiment-binary">Чай</strong></div><div><small>Последний вывод</small><strong id="experiment-output">Ещё не запускали</strong></div></div>
+  <p id="experiment-feedback" role="status" aria-live="polite"></p>
+</section>
+<article>
+  <h2>Зачем нужны команды build, run и publish?</h2>
+  <div class="command-list">
+    <div><code>dotnet build</code><p>Собирает проект и его зависимости. Создаёт файлы сборки, но само приложение не запускает.</p></div>
+    <div><code>dotnet run</code><p>Удобен при разработке: использует проект, при необходимости собирает его и запускает. Флаг <code>--no-build</code> пропускает сборку.</p></div>
+    <div><code>dotnet TraceFlow.dll</code><p>Запускает уже собранную framework-dependent DLL через установленный совместимый Runtime и нужные файлы приложения.</p></div>
+    <div><code>dotnet publish</code><p>Готовит комплект приложения с зависимостями для размещения на другой машине или сервере. Это следующий уровень после обычной сборки.</p></div>
+  </div>
+  <details><summary>Глубже: когда JIT может не понадобиться?</summary><p>Общая схема «C# → IL → JIT → машинный код» подходит для нашего обычного консольного примера. Однако <strong>ReadyToRun</strong> может заранее содержать машинный код для части методов, а <strong>Native AOT</strong> компилирует приложение заранее без JIT при выполнении. В этом уроке мы не смешиваем эти режимы с обычной сборкой.</p></details>
+  <details><summary>Типичные ошибки при диагностике</summary><p>Папка <code>bin/Debug/net11.0</code> зависит от TFM, конфигурации и настроек проекта. Нельзя считать, что там всегда один файл DLL: обычно есть файлы для Runtime и зависимостей. Не путай папки <code>bin</code> (артефакты) и <code>obj</code> (промежуточные файлы). Для настоящего распространения приложения используй <code>publish</code>, а не случайную копию DLL из Debug.</p></details>
+</article>
+<article id="lab">
+  <p class="eyebrow">ПРАКТИКА · POWERSHELL · .NET 11</p>
+  <h2>Лабораторная: найти путь от текста до исполнения</h2>
+  <p>Работай в новой безопасной папке — проект <code>TraceFlow</code> не должен менять прошлую работу. Прежде чем вводить команду, сделай прогноз и запиши его в форму ниже. Если версия SDK 11 недоступна, сохрани первую ошибку вместо выдуманного результата.</p>
+  <ol class="lab-steps">
+    <li><strong>Создай проект и собери.</strong><pre><code>dotnet new console -n TraceFlow -f net11.0
+cd TraceFlow
+dotnet build</code></pre>Запиши путь сборки из терминала.</li>
+    <li><strong>Рассмотри файлы результата.</strong><pre><code>Get-ChildItem .\bin\Debug\net11.0\ | Select-Object Name
+Get-Content .\bin\Debug\net11.0\TraceFlow.runtimeconfig.json</code></pre>Найди DLL и <code>.runtimeconfig.json</code>. Объясни, за что они отвечают.</li>
+    <li><strong>Запусти готовую DLL напрямую.</strong><pre><code>dotnet .\bin\Debug\net11.0\TraceFlow.dll</code></pre>Запиши фактический вывод. Это запуск готового артефакта, а не исходного <code>.cs</code>.</li>
+    <li><strong>Измени Program.cs</strong> так, чтобы он печатал <code>Trace: updated</code>. Сохрани. Сначала предскажи, что выведет прямой запуск DLL <em>без сборки</em>, затем проверь:</li>
+  </ol>
+  <pre><code>dotnet .\bin\Debug\net11.0\TraceFlow.dll
+dotnet build
+dotnet .\bin\Debug\net11.0\TraceFlow.dll</code></pre>
+  <p><strong>Критерии:</strong> представь реальные команды/логи, прогноз и факт до/после пересборки, названия артефактов и собственное объяснение цепочки C# → IL → Runtime/JIT → вывод. Для M00 это диагностика без проходного балла.</p>
+  <p class="note-caption">Дополнительный опыт (необязательно): <code>dotnet publish -c Release</code> и сравнение содержимого <code>bin/Release/net11.0/publish</code> с папкой Debug.</p>
+</article>
+<article id="assessment" class="assessment-panel">
+  <div class="assessment-top"><div><p class="eyebrow">ОТЧЁТ · CODE REVIEW</p><h2>Ответь на странице — скопируй одним нажатием</h2><p>Заполни теорию и перенеси свои наблюдения из терминала. В отчёте будут <strong>полные вопросы и все ответы</strong>, включая пустые поля. Ничего не отправляется автоматически.</p></div><span class="diagnostic">Диагностика M00</span></div>
+  <div class="assessment-meter"><div class="assessment-meter-head"><strong id="assessment-count">0 из 9 разделов заполнено</strong><small>Черновик хранится локально</small></div><progress id="assessment-progress" max="9" value="0" aria-label="Заполненные разделы"></progress></div>
+  <form id="assessment-form" novalidate>
+    <h3 class="assessment-section-title">01 · Понимание механизма</h3>
+    <div class="assessment-grid">
+      <section class="assessment-question" data-assessment-id="Q01" role="radiogroup" aria-labelledby="Q01-title">
+        <h4 id="Q01-title" data-report-title>Q01. Что содержит обычная сборка TraceFlow.dll после dotnet build?</h4>
+        <label class="answer-choice"><input id="q01-a" type="radio" name="q01" value="A"><span>A · Только исходный C#-текст</span></label>
+        <label class="answer-choice"><input id="q01-b" type="radio" name="q01" value="B"><span>B · IL и метаданные</span></label>
+        <label class="answer-choice"><input id="q01-c" type="radio" name="q01" value="C"><span>C · Только готовый код конкретного процессора</span></label>
+      </section>
+      <section class="assessment-question" data-assessment-id="Q02" role="radiogroup" aria-labelledby="Q02-title">
+        <h4 id="Q02-title" data-report-title>Q02. Какое действие обычно выполняет JIT при запуске метода?</h4>
+        <label class="answer-choice"><input id="q02-a" type="radio" name="q02" value="A"><span>A · Превращает IL в машинный код</span></label>
+        <label class="answer-choice"><input id="q02-b" type="radio" name="q02" value="B"><span>B · Переписывает Program.cs</span></label>
+        <label class="answer-choice"><input id="q02-c" type="radio" name="q02" value="C"><span>C · Устанавливает SDK</span></label>
+      </section>
+      <section class="assessment-question" data-assessment-id="Q03" role="group" aria-labelledby="Q03-title">
+        <h4 id="Q03-title" data-report-title>Q03. Какие файлы помогают приложению выбрать Runtime и разрешить зависимости? Выбери все подходящие.</h4>
+        <label class="answer-choice"><input id="q03-a" type="checkbox" name="q03" value="A"><span>A · TraceFlow.runtimeconfig.json</span></label>
+        <label class="answer-choice"><input id="q03-b" type="checkbox" name="q03" value="B"><span>B · TraceFlow.deps.json</span></label>
+        <label class="answer-choice"><input id="q03-c" type="checkbox" name="q03" value="C"><span>C · Program.cs как обязательный файл на целевой машине</span></label>
+      </section>
+      <section class="assessment-question" data-assessment-id="Q04" role="group" aria-labelledby="Q04-title">
+        <h4 id="Q04-title" data-report-title>Q04. Чем отличаются dotnet build, dotnet run и dotnet publish? Почему нельзя считать JIT единственным способом выполнения .NET-кода?</h4>
+        <label class="answer-field" for="q04">Объясни своими словами<textarea id="q04" name="q04" rows="5" placeholder="build… run… publish… В случае JIT…"></textarea></label>
+      </section>
+    </div>
+    <h3 class="assessment-section-title">02 · Реальные наблюдения</h3>
+    <div class="assessment-grid">
+      <section class="assessment-question" data-assessment-id="P01" role="group" aria-labelledby="P01-title">
+        <h4 id="P01-title" data-report-title>P01. Как создавался и собирался TraceFlow? Приведи выполненные команды и лог с путём сборки.</h4>
+        <label class="answer-field" for="p01-log">Команды, версия SDK и вывод<textarea id="p01-log" name="p01-log" rows="6" spellcheck="false" placeholder="dotnet new…&#10;dotnet build…"></textarea></label>
+      </section>
+      <section class="assessment-question" data-assessment-id="P02" role="group" aria-labelledby="P02-title">
+        <h4 id="P02-title" data-report-title>P02. Какие файлы ты нашёл в bin/Debug/net11.0? Что показал TraceFlow.runtimeconfig.json?</h4>
+        <label class="answer-field" for="p02-log">Список файлов и содержимое JSON<textarea id="p02-log" name="p02-log" rows="6" spellcheck="false" placeholder="TraceFlow.dll&#10;TraceFlow.runtimeconfig.json&#10;…"></textarea></label>
+      </section>
+      <section class="assessment-question assessment-wide" data-assessment-id="P03" role="group" aria-labelledby="P03-title">
+        <h4 id="P03-title" data-report-title>P03. Запусти DLL до изменения исходника. Затем измени Program.cs и проверь прямой запуск без пересборки: прогноз и факт.</h4>
+        <div class="answer-pair">
+          <label class="answer-field" for="p03-first">Первый запуск DLL<textarea id="p03-first" name="p03-first" rows="3" spellcheck="false" placeholder="Команда и вывод…"></textarea></label>
+          <label class="answer-field" for="p03-code">Новый код Program.cs<textarea id="p03-code" name="p03-code" rows="3" spellcheck="false" placeholder="Console.WriteLine(&quot;Trace: updated&quot;);"></textarea></label>
+        </div>
+        <div class="answer-pair">
+          <label class="answer-field" for="p03-predict">Прогноз запуска старой DLL<input id="p03-predict" name="p03-predict" placeholder="Какой вывод ожидаешь?"></label>
+          <label class="answer-field" for="p03-actual">Фактический вывод без пересборки<input id="p03-actual" name="p03-actual" placeholder="Что напечатало?"></label>
+        </div>
+      </section>
+      <section class="assessment-question assessment-wide" data-assessment-id="P04" role="group" aria-labelledby="P04-title">
+        <h4 id="P04-title" data-report-title>P04. Что изменилось после dotnet build и повторного прямого запуска DLL? Объясни путь от C# к выполнению.</h4>
+        <div class="answer-pair">
+          <label class="answer-field" for="p04-build">Лог новой сборки и запуска<textarea id="p04-build" name="p04-build" rows="4" spellcheck="false" placeholder="dotnet build…&#10;dotnet TraceFlow.dll…"></textarea></label>
+          <label class="answer-field" for="p04-explain">Моё объяснение<textarea id="p04-explain" name="p04-explain" rows="4" placeholder="Компилятор… DLL… Runtime… JIT…"></textarea></label>
+        </div>
+      </section>
+      <section class="assessment-question assessment-wide" data-assessment-id="P05" role="group" aria-labelledby="P05-title">
+        <h4 id="P05-title" data-report-title>P05. Почему прямой запуск DLL отличается от dotnet run? Какие дополнительные файлы могут потребоваться для запуска?</h4>
+        <label class="answer-field" for="p05-answer">Ответ и обоснование<textarea id="p05-answer" name="p05-answer" rows="4" placeholder="При dotnet run используется проект, а при dotnet TraceFlow.dll…"></textarea></label>
+      </section>
+      <section class="assessment-question assessment-wide assessment-optional" data-assessment-id="P06" data-optional="true" role="group" aria-labelledby="P06-title">
+        <h4 id="P06-title" data-report-title>P06. Какие ошибки возникли или что осталось непонятным? (необязательно)</h4>
+        <label class="answer-field" for="p06-errors">Ошибка, команда, лог или вопрос<textarea id="p06-errors" name="p06-errors" rows="3" spellcheck="false" placeholder="Если проблем не было, оставь пустым."></textarea></label>
+      </section>
+    </div>
+    <div class="report-controls">
+      <div><h3>Один отчёт вместо десяти сообщений</h3><p>Собери текст с вопросами и ответами, скопируй и вставь его в наш чат. Это ещё не Verified — сначала будет Code Review.</p></div>
+      <div class="report-buttons"><button id="report-copy" class="cta" type="button">Собрать и скопировать отчёт</button><button id="report-reset" type="button">Сбросить ответы</button></div>
+      <p id="report-status" role="status" aria-live="polite">Можно отправить и неполный отчёт.</p>
+    </div>
+    <div id="report-result" class="report-result" hidden>
+      <label class="answer-field" for="report-preview">Предпросмотр — можно выделить и скопировать вручную<textarea id="report-preview" readonly rows="14" spellcheck="false"></textarea></label>
+    </div>
+  </form>
+  <p class="assessment-hint">Черновик сохраняется только в этом браузере (не на сервере). Кнопка сброса попросит подтверждение и удалит локальную копию.</p>
+</article>
+<article>
+  <h2>Official References · проверено 19 ноября 2026</h2>
+  <p>Основа примеров: .NET 11 GA, SDK 11.0.100 и типичный проект <code>net11.0</code>. Общая модель JIT применима не ко всем типам публикации.</p>
+  <ul>
+    <li><a href="https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-build">dotnet build: IL, DLL, зависимости и файлы сборки</a></li>
+    <li><a href="https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-run">dotnet run: запуск из проекта и --no-build</a></li>
+    <li><a href="https://learn.microsoft.com/en-us/dotnet/standard/managed-execution-process">Managed execution: компиляция в IL, метаданные, JIT</a></li>
+    <li><a href="https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-publish">dotnet publish: артефакты для развёртывания</a></li>
+    <li><a href="https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core">Официальная матрица поддержки .NET</a></li>
+  </ul>
+  <a href="../../index.html#M00">← Вернуться к модулю M00</a>
+</article>
+</main>
+<footer>C# &amp; .NET Engineering Academy</footer>
+</body>
+</html>
