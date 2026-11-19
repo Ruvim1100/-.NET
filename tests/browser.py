@@ -73,8 +73,85 @@ with sync_playwright() as driver:
         assert "Последний вывод: «Сок»" in page.locator("#free-state").inner_text()
         page.locator("#restart").click()
         assert page.locator("#draft").input_value() == "Чай"
-        page.locator("#answer").select_option("old")
-        assert "Верно" in page.locator("#feedback").inner_text()
+        # Assessment: single choice, multiple choice, long text, command logs and code.
+        assert page.locator("[data-assessment-id]").count() == 10
+        page.locator("#q01-b").check()
+        page.locator("#q02-b").check()
+        page.locator("#q02-c").check()
+        page.locator("#q03").fill("Исходник сохранён, DLL пока прежняя.\nНужна новая сборка.")
+        page.locator("#q04").fill("dotnet --list-sdks: показывает установки, но не доказывает успешную сборку проекта.")
+        page.locator("#p01-a").check()
+        page.locator("#env-output").fill("dotnet --version\n11.0.100\n<runtime> & \"SDK\"")
+        page.locator("#env-predict").fill("net11.0 можно собрать при установленном SDK 11.")
+        page.locator("#word-first").fill("Чай")
+        page.locator("#word-second").fill("Кофе")
+        page.locator("#program-code").fill('Console.WriteLine("Кофе");\n// <tag> & more')
+        page.locator("#run1-predict").fill("Чай")
+        page.locator("#run1-actual").fill("Чай")
+        page.locator("#run2-predict").fill("Чай")
+        page.locator("#run2-actual").fill("Чай")
+        page.locator("#run3-predict").fill("Кофе")
+        page.locator("#run3-actual").fill("Кофе")
+        page.locator("#lab-why").fill("DLL обновляется при build. SDK собирает, Runtime исполняет.")
+        expect(page.locator("#assessment-count")).to_contain_text("9 из 9")
+
+        # Simulate successful permission to copy; the copied text must include each prompt and raw answers.
+        page.evaluate("""() => {
+          window.__copiedReport = null;
+          Object.defineProperty(navigator, 'clipboard', {
+            configurable: true,
+            value: {writeText: async text => { window.__copiedReport = text; }}
+          });
+        }""")
+        page.locator("#report-copy").click()
+        expect(page.locator("#report-status")).to_contain_text("Отчёт скопирован")
+        report = page.evaluate("window.__copiedReport")
+        assert "M00-L01 — SDK и Runtime" in report
+        assert "Q01. Ты изменил Program.cs" in report
+        assert "B Текст предыдущей сборки" in report
+        assert "B dotnet --list-sdks; C dotnet --list-runtimes" in report
+        assert '<runtime> & "SDK"' in report
+        assert 'Console.WriteLine("Кофе");\n// <tag> & more' in report
+        assert "P04. Сравни прогноз" in report and "Шаг 3 — фактический вывод: Кофе" in report
+        assert "P06. Что не получилось" in report and "Ошибки и вопросы: Не отвечено" in report
+
+        # Reload must recover the local draft, but report copy needs to be explicitly requested.
+        page.reload()
+        assert page.locator("#word-second").input_value() == "Кофе"
+        assert page.locator("#q01-b").is_checked()
+        assert page.locator("#q02-c").is_checked()
+        expect(page.locator("#assessment-count")).to_contain_text("9 из 9")
+        assert page.locator("#report-result").is_hidden()
+
+        # Denied clipboard permission: accessible manual selection remains available.
+        page.evaluate("""() => Object.defineProperty(navigator, 'clipboard', {
+          configurable: true, value: {writeText: () => Promise.reject(Error('Permission denied'))}
+        })""")
+        page.locator("#report-copy").click()
+        expect(page.locator("#report-status")).to_contain_text("Автокопирование недоступно")
+        assert page.locator("#report-preview").is_visible()
+        assert "Q02. Какие команды" in page.locator("#report-preview").input_value()
+        assert page.locator("#report-preview").evaluate("el => el === document.activeElement")
+
+        # Editing after report generation updates the preview rather than leaving stale answers.
+        page.locator("#q03").fill("Исправленный ответ после проверки.")
+        assert "Исправленный ответ после проверки." in page.locator("#report-preview").input_value()
+
+        # The destructive reset requires confirmation and clears persisted answers.
+        page.once("dialog", lambda dialog: dialog.dismiss())
+        page.locator("#report-reset").click()
+        assert page.locator("#q01-b").is_checked()
+        page.once("dialog", lambda dialog: dialog.accept())
+        page.locator("#report-reset").click()
+        assert not page.locator("#q01-b").is_checked()
+        assert page.locator("#env-output").input_value() == ""
+        assert page.locator("#report-result").is_hidden()
+        expect(page.locator("#assessment-count")).to_contain_text("0 из 9")
+        page.reload()
+        assert page.locator("#word-second").input_value() == ""
+        page.locator("#report-copy").click()
+        assert "Q01. Ты изменил Program.cs" in page.locator("#report-preview").input_value()
+        assert "Ответ: Не отвечено" in page.locator("#report-preview").input_value()
         assert page.evaluate("document.documentElement.scrollWidth <= innerWidth")
         assert not errors, errors
         page.close()
