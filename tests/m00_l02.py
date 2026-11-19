@@ -37,7 +37,7 @@ with sync_playwright() as pw:
             page.locator("#stage-guess").select_option("Кофе")
             page.locator("#stage-next").click()
             expect(page.locator("#stage-console")).to_have_text("Чай")
-            assert "Прогноз: Кофе" in page.locator("#stage-feedback").inner_text()
+            assert "Твой прогноз: Кофе" in page.locator("#stage-feedback").inner_text()
             page.locator("#stage-next").click()
             expect(page.locator("#stage-console")).to_have_text("Кофе")
             page.locator("#stage-reset").click()
